@@ -72,9 +72,6 @@ package:
 
 dev:
     stage: deploy
-    parallel:
-      matrix:
-      - RUNNER : dev
     services:
       - docker:dind 
     script:
@@ -89,7 +86,7 @@ dev:
     except:
       - master
     tags:
-      - ${RUNNER}
+      - dev
 
 
 prod:
