@@ -1,0 +1,102 @@
+stages:
+  - build
+  - test
+  - package
+  - deploy 
+
+cache:
+  paths: 
+    - .gradle/wrapper
+    - .gradle/caches 
+
+
+build:
+  image: openjdk:11-jdk 
+  stage: build
+  parallel:
+    matrix:
+      - RUNNER : dev
+      - RUNNER : prod
+    
+  before_script:
+    - chmod +x ./gradlew
+  script:
+    - ./gradlew clean build -x test -Pprofile=${RUNNER}
+    - echo ${RUNNER}
+  artifacts:
+    paths:
+      - build/libs/*.jar
+    expire_in: 1 week
+  tags :
+    - ${RUNNER}
+
+
+
+test:
+  stage: test
+  parallel:
+    matrix:
+      - RUNNER : dev
+      - RUNNER : prod
+  script: 
+    - ps -ef | grep mysql
+  tags :
+    - ${RUNNER}
+
+
+
+
+package:
+  image: docker:latest
+  stage: package
+  variables:
+    IMAGE_NAME : csj21300/study
+  parallel:
+    matrix:
+      - RUNNER : dev
+      - RUNNER : prod  
+  services:
+    - docker:dind 
+  before_script:
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD}
+  script:
+    - docker image prune -a -f
+    - docker container ls -a
+    - docker build -t $IMAGE_NAME .
+    - docker push $IMAGE_NAME
+    - docker images
+  tags :
+    - ${RUNNER}
+   
+
+
+dev:
+    stage: deploy
+    services:
+      - docker:dind 
+    script:
+      - docker container ls -a
+      - docker container rm -f myboot
+      - docker ps
+      - docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=dev" --name myboot csj21300/study
+    when: manual
+    only:
+      - master
+    tags:
+      - dev
+
+
+prod:
+    stage: deploy
+    services:
+      - docker:dind 
+    script:
+      - docker container ls -a
+      - docker container rm -f myboot
+      - docker ps
+      - docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=prod" --name myboot csj21300/study
+    when: manual
+    only:
+      - master
+    tags:
+      - prod
