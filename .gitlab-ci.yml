@@ -81,7 +81,7 @@ dev:
       - docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=dev" --name myboot csj21300/study
     when: manual
     only:
-      - master
+      - develop
     tags:
       - dev
 
