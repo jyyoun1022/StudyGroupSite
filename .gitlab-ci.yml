@@ -82,6 +82,7 @@ dev:
     when: manual
     only:
       - develop
+      - master
     tags:
       - dev
 
