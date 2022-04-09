@@ -76,7 +76,7 @@ dev:
       - docker:dind 
     script:
       - docker container ls -a
-      - docker container rm -f $(docker container ls -aq)
+      - docker container rm -f myboot
       - docker ps
       - docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=dev" --name myboot csj21300/study
     when: manual
@@ -92,7 +92,7 @@ prod:
       - docker:dind 
     script:
       - docker container ls -a
-      - docker container rm -f $(docker container ls -aq)
+      - docker container rm -f myboot
       - docker ps
       - docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=prod" --name myboot csj21300/study
     when: manual
