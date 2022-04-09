@@ -97,6 +97,7 @@ prod:
       - docker run -d -p 8080:8080 -e "SPRING_PROFILES_ACTIVE=prod" --name myboot csj21300/study
     when: manual
     only:
+      - develop
       - master
     tags:
       - prod
